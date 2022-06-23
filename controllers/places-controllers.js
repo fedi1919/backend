@@ -40,5 +40,23 @@ const getPlaceByUserId = (req, res, next) => {
   res.json({ place });
 };
 
+const createPlace = (req, res, next) => {
+  // get Data from the request body
+  const { title, decription, coordinates, address, creator } = req.body; // const title = req.body.title
+  // create the new place
+  const createdPlace = {
+    title,
+    decription,
+    location: coordinates,
+    address,
+    creator,
+  };
+  //add the created new place to DUMMY_PLACES
+  DUMMY_PLACES.push(createdPlace); //unshift(createdPlace) : created place ill be the first element
+  //Sending back a response
+  res.status(201).json({ createdPlace }); //201 if something new  was successfully created  on the server
+};
+
 exports.getPlaceById = getPlaceById;
 exports.getPlaceByUserId = getPlaceByUserId;
+exports.createPlace = createPlace;
