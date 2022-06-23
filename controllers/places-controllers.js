@@ -42,9 +42,10 @@ const getPlaceByUserId = (req, res, next) => {
 
 const createPlace = (req, res, next) => {
   // get Data from the request body
-  const { title, decription, coordinates, address, creator } = req.body; // const title = req.body.title
+  const { id, title, decription, coordinates, address, creator } = req.body; // const title = req.body.title
   // create the new place
   const createdPlace = {
+    id,
     title,
     decription,
     location: coordinates,
@@ -57,6 +58,32 @@ const createPlace = (req, res, next) => {
   res.status(201).json({ createdPlace }); //201 if something new  was successfully created  on the server
 };
 
+const updatePlaceById = (req, res, next) => {
+  //get data from the request body
+  const { title, description } = req.body;
+
+  //get the id of the updated place
+  const placeId = req.params.pid;
+
+  //identify the place which being updated
+  const updatedPlace = { ...DUMMY_PLACES.find((p) => p.id === placeId) };
+  const placeIndex = DUMMY_PLACES.findIndex((p) => p.id === placeId);
+
+  //update the place
+  updatedPlace.title = title;
+  updatedPlace.decription = description;
+
+  //replace the old object with the new updated one
+  DUMMY_PLACES[placeIndex] = updatedPlace;
+
+  //sending a response
+  res.status(200).json({ place: updatedPlace });
+};
+
+const deletePlaceById = (req, res, next) => {};
+
 exports.getPlaceById = getPlaceById;
 exports.getPlaceByUserId = getPlaceByUserId;
 exports.createPlace = createPlace;
+exports.updatePlaceById = updatePlaceById;
+exports.deletePlaceById = deletePlaceById;
