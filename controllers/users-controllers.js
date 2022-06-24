@@ -27,7 +27,7 @@ const signup = async (req, res, next) => {
   }
 
   //create a new user
-  const { name, email, password, places } = req.body;
+  const { name, email, password } = req.body;
 
   //check if the email address is already exists
   let existingUser;
@@ -56,7 +56,7 @@ const signup = async (req, res, next) => {
     password,
     image:
       "https://media-exp1.licdn.com/dms/image/C4D1BAQEVG7dYA79gWA/company-background_10000/0/1560684767266?e=2147483647&v=beta&t=lTG1xQnPRDPTiIFzyTLqf3cUHio1AHq3xOFOh2Az8f0",
-    places,
+    places: [],
   });
 
   try {
