@@ -17,16 +17,34 @@ let DUMMY_PLACES = [
   },
 ];
 
-const getPlaceById = (req, res, next) => {
+const getPlaceById = async (req, res, next) => {
   const placeId = req.params.pid;
-  const place = DUMMY_PLACES.find((p) => {
-    return p.id === placeId;
-  });
 
-  if (!place) {
-    throw new HttpError("could not find a place for the provided id", 404);
+  //Find an existing place with the given id
+  let place;
+  try {
+    place = await Place.findById(placeId);
+    //findById() does not return a Promise. add exec() to transforme it to a real Promise
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong. Could not find a place",
+      500
+    );
+    return next(error);
   }
-  res.json({ place });
+
+  //check if the place exists
+  if (!place) {
+    const error = new HttpError(
+      "could not find a place for the provided id",
+      404
+    );
+    return next(error);
+  }
+
+  //Sending back a response
+  //use toObject to turn it to a normal javaScript object, set getters to true to get rid of the _ before the id
+  res.json({ place: place.toObject({ getters: true }) });
 };
 
 const getPlacesByUserId = (req, res, next) => {
