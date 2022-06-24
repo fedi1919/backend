@@ -115,7 +115,11 @@ const updatePlaceById = async (req, res, next) => {
   //validating the request object
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    throw new HttpError("Invalid inputs passed, please check your data.", 422);
+    const error = new HttpError(
+      "Invalid inputs passed, please check your data.",
+      422
+    );
+    return next(error);
   }
 
   //get data from the request body
