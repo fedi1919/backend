@@ -1,6 +1,8 @@
 const HttpError = require("../models/http-error");
 const { validationResult } = require("express-validator");
 
+const Place = require("../models/place");
+
 let DUMMY_PLACES = [
   {
     id: "p1",
@@ -41,7 +43,7 @@ const getPlacesByUserId = (req, res, next) => {
   res.json({ places });
 };
 
-const createPlace = (req, res, next) => {
+const createPlace = async (req, res, next) => {
   //validating the request object
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -49,18 +51,30 @@ const createPlace = (req, res, next) => {
   }
 
   // get Data from the request body
-  const { id, title, decription, coordinates, address, creator } = req.body; // const title = req.body.title
-  // create the new place
-  const createdPlace = {
-    id,
+  const { title, description, coordinates, address, creator } = req.body; // const title = req.body.title
+
+  // create the new place with mongoose model
+  const createdPlace = new Place({
     title,
-    decription,
-    location: coordinates,
+    description,
     address,
+    location: coordinates,
+    image:
+      "https://marvel-b1-cdn.bc0a.com/f00000000179470/www.esbnyc.com/sites/default/files/styles/small_feature/public/2019-10/home_banner-min.jpg?itok=uZt-03Vw",
     creator,
-  };
-  //add the created new place to DUMMY_PLACES
-  DUMMY_PLACES.push(createdPlace); //unshift(createdPlace) : created place ill be the first element
+  });
+
+  //save the model
+  try {
+    await createdPlace.save();
+  } catch (err) {
+    const error = new HttpError(
+      "Creating place failed, please try again.",
+      500
+    );
+    return next(error);
+  }
+
   //Sending back a response
   res.status(201).json({ createdPlace }); //201 if something new  was successfully created  on the server
 };
