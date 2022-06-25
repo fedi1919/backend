@@ -2,7 +2,6 @@ const { validationResult } = require("express-validator");
 const mongoose = require("mongoose");
 
 const HttpError = require("../models/http-error");
-
 const Place = require("../models/place");
 const User = require("../models/user");
 
@@ -189,31 +188,41 @@ const updatePlaceById = async (req, res, next) => {
 const deletePlaceById = async (req, res, next) => {
   const placeId = req.params.pid;
 
-  //find the place to be deleted
   let place;
   try {
-    place = await Place.findById(placeId);
+    place = await Place.findById(placeId).populate("creator");
+    /*populate() allos u to refer to a document tored in another collection 
+      and to work with data in that existing document. To do so we need relation
+      between this two documents */
   } catch (err) {
     const error = new HttpError(
-      "Something went wrong. Could not delete the place",
+      "Something went wrong, could not delete place.",
       500
     );
     return next(error);
   }
 
-  //delete the place
+  if (!place) {
+    const error = new HttpError("Could not find place for this id.", 404);
+    return next(error);
+  }
+
   try {
-    await place.remove();
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    await place.remove({ session: sess });
+    place.creator.places.pull(place);
+    await place.creator.save({ session: sess });
+    await sess.commitTransaction();
   } catch (err) {
     const error = new HttpError(
-      "Something went wrong. Could not delete the place",
+      "Something went wrong, could not delete place.",
       500
     );
     return next(error);
   }
 
-  //ending back a response
-  res.status(200).json({ message: "deleted place..." });
+  res.status(200).json({ message: "Deleted place." });
 };
 
 exports.getPlaceById = getPlaceById;
