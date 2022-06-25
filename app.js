@@ -10,6 +10,18 @@ const app = express();
 
 app.use(bodyParser.json());
 
+//this middleware handles CORS errors
+app.use((req, res, next) => {
+  //set a header on the response
+  res.setHeader("Access-Control-Allow-Origin", "*"); //this API is open for any domain
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authoriation"
+  );
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
+  next();
+});
+
 app.use("/api/places", placesRoutes);
 app.use("/api/users", usersRoutes);
 
@@ -32,7 +44,7 @@ app.use((error, req, res, next) => {
 //use mongoose to connect
 mongoose
   .connect(
-    "mongodb+srv://fedi:fedi1997@cluster0.tz7flyq.mongodb.net/demo?retryWrites=true&w=majority"
+    "mongodb+srv://fedi:fedi1997@cluster0.tz7flyq.mongodb.net/demofinal?retryWrites=true&w=majority"
   )
   .then(() => {
     app.listen(5000);
